@@ -1,0 +1,97 @@
+# Job-search pack: the "customers" are companies likely to hire a GTM engineer.
+# Replace lists/targets.csv with your own target companies before a live run.
+# The sample/ folder is only for `signal-engine run --pack job-search --offline`.
+
+company:
+  name: Job Search
+  website: ""
+  product_summary: >
+    A new-grad GTM engineer who builds signal-based outbound systems (enrichment, scoring,
+    CRM automation, AI with guardrails) for B2B sales teams.
+
+seed_customers: []   # domains of your dream employers; used for backtests later
+
+icp:
+  criteria:
+    - name: B2B software
+      description: Sells software to businesses, not consumers
+      weight: 1.5
+      keywords: [for teams, for businesses, b2b, platform for, enterprise, saas]
+    - name: Sales-led motion
+      description: Has a sales team or demo-driven buying process (book a demo, talk to sales)
+      weight: 1.5
+      keywords: [book a demo, talk to sales, contact sales, request a demo, get a demo]
+    - name: Growth stage
+      description: Funded and growing, roughly Series A to C, with room for a first or early GTM engineer
+      weight: 1.0
+      keywords: [series a, series b, series c, backed by, raised, investors]
+    - name: Ops-minded GTM
+      description: Signs they care about GTM systems, RevOps, data or automation
+      weight: 1.0
+      keywords: [revops, revenue operations, gtm, go-to-market, automation, hubspot, salesforce, clay]
+    - name: Location fit
+      description: Remote-friendly or based in California / US West Coast
+      weight: 0.5
+      keywords: [remote, california, los angeles, san francisco, orange county, irvine, san diego]
+  exclusions:
+    - Consumer apps sold to individuals
+    - Agencies, consultancies or staffing firms
+  exclusion_keywords: [download the app, for consumers, staffing agency, our agency, marketing agency]
+
+discovery:
+  - source: csv_import
+    path: lists/targets.csv
+
+signals:
+  gtm_role_open:
+    plugin: hiring_role
+    weight: 40
+    decay_days: 45
+    titles: [gtm engineer, go-to-market engineer, growth engineer, revenue operations, revops,
+             sales operations, marketing operations, gtm operations]
+  sales_buildout:
+    plugin: hiring_role
+    weight: 20
+    decay_days: 60
+    titles: [account executive, sales development, sdr, bdr, head of sales, vp of sales]
+
+personas: [hiring manager for the GTM role, VP or Head of Sales, Head of RevOps, founder]
+
+messaging:
+  value_props:
+    - I build outbound systems that find the right accounts and the right moment
+    - I can show you, with your own market, before we talk
+  tone: plain, specific, no buzzwords
+  banned_claims: [made-up metrics, claims about their pipeline I can't source]
+
+# First matching play wins, so list the most specific first.
+plays:
+  - name: mini_pack
+    type: useful_artifact
+    description: Build a small pack for their market and send their top 10 target accounts with reasons (2-min Loom)
+    when: {signal: gtm_role_open, max_age_days: 45}
+  - name: gtm_teardown
+    type: teardown
+    description: One-page teardown of their outbound motion (site, pricing page, job posts) with 3 specific ideas
+    when: {signal: sales_buildout, max_age_days: 60}
+  - name: warm_intro
+    type: warm_intro
+    description: High fit but no hiring signal - find a mutual connection or alum and ask for a 15-min chat
+    when: {fit_min: 70, no_timing_signal: true}
+
+scoring:
+  fit_weight: 0.5
+  timing_weight: 0.5
+  threshold: 55
+
+shortlist:
+  max_accounts_per_week: 5
+
+destinations:
+  console: true
+  slack: false
+
+limits:
+  max_accounts: 100
+  max_llm_calls: 150
+  page_cache_days: 7

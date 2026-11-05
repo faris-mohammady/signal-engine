@@ -1,0 +1,8 @@
+name,domain,ats,ats_slug,parent_domain,suppressed,notes
+Pipeline Pilot,pipelinepilot.example,greenhouse,pipelinepilot,,,SAMPLE - offline demo only
+Ledger Loop,ledgerloop.example,lever,ledgerloop,,,SAMPLE
+Fieldwise,fieldwise.example,,,,,SAMPLE - no ATS; careers page is read instead
+Quiet Co,quietco.example,,,,,SAMPLE
+Snack Dash,snackdash.example,ashby,snackdash,,,SAMPLE - consumer app; should be excluded
+Brightdesk Partners,brightdesk.example,,,,,SAMPLE - agency; should be excluded
+Old Employer,oldemployer.example,,,,true,SAMPLE - suppressed; scored but never shortlisted
